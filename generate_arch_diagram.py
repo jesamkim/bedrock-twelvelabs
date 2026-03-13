@@ -6,7 +6,7 @@ OUT_DIR = os.path.join(os.path.dirname(__file__), "assets")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 SVG = """<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" width="900" height="520">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" width="960" height="620">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#0f1923"/>
@@ -20,9 +20,13 @@ SVG = """<?xml version="1.0" encoding="UTF-8"?>
       <stop offset="0%" stop-color="#C7511F"/>
       <stop offset="100%" stop-color="#E8772E"/>
     </linearGradient>
-    <linearGradient id="boxMar" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="boxMarSync" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#1B66C9"/>
       <stop offset="100%" stop-color="#4A90D9"/>
+    </linearGradient>
+    <linearGradient id="boxMarAsync" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0D4A8B"/>
+      <stop offset="100%" stop-color="#2E7BCF"/>
     </linearGradient>
     <linearGradient id="boxVec" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#8E44AD"/>
@@ -31,66 +35,6 @@ SVG = """<?xml version="1.0" encoding="UTF-8"?>
     <filter id="shadow">
       <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/>
     </filter>
-  </defs>
-
-  <rect width="900" height="520" fill="url(#bg)" rx="12"/>
-
-  <!-- Title -->
-  <text x="450" y="40" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="bold" font-family="Arial, sans-serif">Bedrock Twelve Labs PoC Architecture (us-east-1)</text>
-
-  <!-- Region box -->
-  <rect x="30" y="55" width="840" height="450" rx="8" fill="none" stroke="#4a6a8a" stroke-width="1.5" stroke-dasharray="6,4"/>
-  <text x="50" y="75" fill="#7a9aba" font-size="12" font-family="Arial, sans-serif">AWS Region: us-east-1</text>
-
-  <!-- S3 Bucket -->
-  <rect x="60" y="100" width="160" height="160" rx="10" fill="url(#boxS3)" filter="url(#shadow)"/>
-  <text x="140" y="130" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="Arial, sans-serif">Amazon S3</text>
-  <text x="140" y="155" text-anchor="middle" fill="#e0e0e0" font-size="10" font-family="Arial, sans-serif">bedrock-twelvelabs-poc-*</text>
-  <text x="140" y="180" text-anchor="middle" fill="#c0d0c0" font-size="11" font-family="Arial, sans-serif">nature.mp4 (19s)</text>
-  <text x="140" y="200" text-anchor="middle" fill="#c0d0c0" font-size="11" font-family="Arial, sans-serif">city.mp4 (38s)</text>
-  <text x="140" y="220" text-anchor="middle" fill="#c0d0c0" font-size="11" font-family="Arial, sans-serif">cooking.mp4 (14s)</text>
-
-  <!-- Pegasus -->
-  <rect x="340" y="90" width="220" height="110" rx="10" fill="url(#boxPeg)" filter="url(#shadow)"/>
-  <text x="450" y="120" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="Arial, sans-serif">Pegasus v1.2</text>
-  <text x="450" y="142" text-anchor="middle" fill="#ffe0c0" font-size="11" font-family="Arial, sans-serif">Video-to-Text Generation</text>
-  <text x="450" y="162" text-anchor="middle" fill="#e0d0c0" font-size="10" font-family="Arial, sans-serif">Summary / Q&amp;A / Timestamps</text>
-  <text x="450" y="182" text-anchor="middle" fill="#d0c0b0" font-size="9" font-family="monospace">us.twelvelabs.pegasus-1-2-v1:0</text>
-
-  <!-- Marengo -->
-  <rect x="340" y="230" width="220" height="110" rx="10" fill="url(#boxMar)" filter="url(#shadow)"/>
-  <text x="450" y="260" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="Arial, sans-serif">Marengo Embed 3.0</text>
-  <text x="450" y="282" text-anchor="middle" fill="#c0d8ff" font-size="11" font-family="Arial, sans-serif">Text + Image Embedding</text>
-  <text x="450" y="302" text-anchor="middle" fill="#b0c8e0" font-size="10" font-family="Arial, sans-serif">dim=512 / Cosine Similarity</text>
-  <text x="450" y="322" text-anchor="middle" fill="#a0b8d0" font-size="9" font-family="monospace">us.twelvelabs.marengo-embed-3-0-v1:0</text>
-
-  <!-- Vector DB -->
-  <rect x="670" y="230" width="170" height="110" rx="10" fill="url(#boxVec)" filter="url(#shadow)"/>
-  <text x="755" y="265" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="Arial, sans-serif">Vector DB</text>
-  <text x="755" y="287" text-anchor="middle" fill="#e0d0f0" font-size="11" font-family="Arial, sans-serif">OpenSearch /</text>
-  <text x="755" y="305" text-anchor="middle" fill="#e0d0f0" font-size="11" font-family="Arial, sans-serif">Pinecone</text>
-  <text x="755" y="325" text-anchor="middle" fill="#d0c0e0" font-size="10" font-family="Arial, sans-serif">Similarity Search</text>
-
-  <!-- Output -->
-  <rect x="670" y="90" width="170" height="110" rx="10" fill="none" stroke="#e8772e" stroke-width="2"/>
-  <text x="755" y="120" text-anchor="middle" fill="#e8772e" font-size="13" font-weight="bold" font-family="Arial, sans-serif">Output</text>
-  <text x="755" y="145" text-anchor="middle" fill="#c0c0c0" font-size="10" font-family="Arial, sans-serif">English/Korean Summary</text>
-  <text x="755" y="163" text-anchor="middle" fill="#c0c0c0" font-size="10" font-family="Arial, sans-serif">Timestamped Moments</text>
-  <text x="755" y="181" text-anchor="middle" fill="#c0c0c0" font-size="10" font-family="Arial, sans-serif">Object Detection</text>
-
-  <!-- Arrows: S3 -> Pegasus -->
-  <line x1="220" y1="160" x2="335" y2="140" stroke="#6AAF35" stroke-width="2.5" marker-end="url(#arrowG)"/>
-  <!-- S3 -> Marengo (via frame extraction) -->
-  <line x1="220" y1="220" x2="335" y2="270" stroke="#6AAF35" stroke-width="2.5" marker-end="url(#arrowG)"/>
-  <!-- Pegasus -> Marengo (description text) -->
-  <line x1="450" y1="200" x2="450" y2="225" stroke="#E8772E" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowO)"/>
-  <!-- Pegasus -> Output -->
-  <line x1="560" y1="145" x2="665" y2="145" stroke="#E8772E" stroke-width="2.5" marker-end="url(#arrowO)"/>
-  <!-- Marengo -> Vector DB -->
-  <line x1="560" y1="285" x2="665" y2="285" stroke="#4A90D9" stroke-width="2.5" marker-end="url(#arrowB)"/>
-
-  <!-- Arrow markers -->
-  <defs>
     <marker id="arrowG" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#6AAF35"/>
     </marker>
@@ -100,28 +44,133 @@ SVG = """<?xml version="1.0" encoding="UTF-8"?>
     <marker id="arrowB" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#4A90D9"/>
     </marker>
+    <marker id="arrowBD" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2E7BCF"/>
+    </marker>
+    <marker id="arrowP" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#BB6BD9"/>
+    </marker>
   </defs>
 
-  <!-- Labels on arrows -->
-  <text x="270" y="140" fill="#a0d080" font-size="9" font-family="Arial, sans-serif" transform="rotate(-8, 270, 140)">video (S3 URI)</text>
-  <text x="255" y="260" fill="#a0d080" font-size="9" font-family="Arial, sans-serif" transform="rotate(15, 255, 260)">frames (JPEG)</text>
-  <text x="458" y="216" fill="#e8a060" font-size="9" font-family="Arial, sans-serif">description text</text>
-  <text x="600" y="138" fill="#e8a060" font-size="9" font-family="Arial, sans-serif">text response</text>
-  <text x="600" y="278" fill="#80b0e0" font-size="9" font-family="Arial, sans-serif">embedding</text>
+  <rect width="960" height="620" fill="url(#bg)" rx="12"/>
 
-  <!-- Pipeline labels -->
-  <rect x="60" y="380" width="400" height="100" rx="8" fill="#1e2e3e" stroke="#3a5a7a" stroke-width="1"/>
-  <text x="80" y="405" fill="#e8772e" font-size="12" font-weight="bold" font-family="Arial, sans-serif">Pipeline A: Video Understanding (Pegasus)</text>
-  <text x="80" y="425" fill="#b0b0b0" font-size="10" font-family="Arial, sans-serif">S3 Video -> Pegasus -> Summary / Q&amp;A / Timestamps</text>
-  <text x="80" y="450" fill="#4A90D9" font-size="12" font-weight="bold" font-family="Arial, sans-serif">Pipeline B: Video Search (Pegasus + Marengo)</text>
-  <text x="80" y="470" fill="#b0b0b0" font-size="10" font-family="Arial, sans-serif">S3 Video -> Pegasus desc -> Marengo embed -> Vector DB</text>
+  <!-- Title -->
+  <text x="480" y="38" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="bold" font-family="Arial, sans-serif">Bedrock Twelve Labs PoC Architecture (us-east-1)</text>
 
-  <!-- Bedrock badge -->
-  <rect x="580" y="380" width="270" height="100" rx="8" fill="#1e2e3e" stroke="#3a5a7a" stroke-width="1"/>
-  <text x="715" y="405" text-anchor="middle" fill="#FF9900" font-size="13" font-weight="bold" font-family="Arial, sans-serif">Amazon Bedrock</text>
-  <text x="715" y="425" text-anchor="middle" fill="#a0a0a0" font-size="10" font-family="Arial, sans-serif">InvokeModel API</text>
-  <text x="715" y="445" text-anchor="middle" fill="#a0a0a0" font-size="10" font-family="Arial, sans-serif">IAM Authentication</text>
-  <text x="715" y="465" text-anchor="middle" fill="#a0a0a0" font-size="10" font-family="Arial, sans-serif">us-east-1 (Marengo) / global (Pegasus)</text>
+  <!-- Region box -->
+  <rect x="30" y="52" width="900" height="555" rx="8" fill="none" stroke="#4a6a8a" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="50" y="72" fill="#7a9aba" font-size="12" font-family="Arial, sans-serif">AWS Region: us-east-1</text>
+
+  <!-- ═══════════ S3 Bucket ═══════════ -->
+  <rect x="50" y="95" width="160" height="175" rx="10" fill="url(#boxS3)" filter="url(#shadow)"/>
+  <text x="130" y="122" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="Arial, sans-serif">Amazon S3</text>
+  <text x="130" y="145" text-anchor="middle" fill="#e0e0e0" font-size="9" font-family="Arial, sans-serif">bedrock-twelvelabs-poc-*</text>
+  <line x1="65" y1="155" x2="195" y2="155" stroke="#4a8030" stroke-width="0.8"/>
+  <text x="130" y="175" text-anchor="middle" fill="#c0d0c0" font-size="10" font-family="Arial, sans-serif">nature.mp4 (19s)</text>
+  <text x="130" y="195" text-anchor="middle" fill="#c0d0c0" font-size="10" font-family="Arial, sans-serif">city.mp4 (38s)</text>
+  <text x="130" y="215" text-anchor="middle" fill="#c0d0c0" font-size="10" font-family="Arial, sans-serif">cooking.mp4 (14s)</text>
+  <text x="130" y="240" text-anchor="middle" fill="#90b890" font-size="9" font-family="Arial, sans-serif">+ async output/*.json</text>
+  <text x="130" y="258" text-anchor="middle" fill="#90b890" font-size="9" font-family="Arial, sans-serif">(embedding results)</text>
+
+  <!-- ═══════════ Pegasus ═══════════ -->
+  <rect x="310" y="85" width="240" height="100" rx="10" fill="url(#boxPeg)" filter="url(#shadow)"/>
+  <text x="430" y="112" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="Arial, sans-serif">Pegasus v1.2</text>
+  <text x="430" y="132" text-anchor="middle" fill="#ffe0c0" font-size="11" font-family="Arial, sans-serif">Video-to-Text Generation</text>
+  <text x="430" y="150" text-anchor="middle" fill="#e0d0c0" font-size="10" font-family="Arial, sans-serif">Summary / Q&amp;A / Timestamps</text>
+  <text x="430" y="172" text-anchor="middle" fill="#d0c0b0" font-size="8" font-family="monospace">InvokeModel (Sync)</text>
+
+  <!-- ═══════════ Marengo Async (Video) ═══════════ -->
+  <rect x="310" y="210" width="240" height="120" rx="10" fill="url(#boxMarAsync)" filter="url(#shadow)"/>
+  <text x="430" y="236" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="Arial, sans-serif">Marengo Embed 3.0</text>
+  <text x="430" y="255" text-anchor="middle" fill="#90d0ff" font-size="11" font-family="Arial, sans-serif">Video / Audio Embedding</text>
+  <text x="430" y="275" text-anchor="middle" fill="#80c0e8" font-size="10" font-family="Arial, sans-serif">Multi-Vector: asset + clip level</text>
+  <text x="430" y="293" text-anchor="middle" fill="#80c0e8" font-size="10" font-family="Arial, sans-serif">visual / audio / transcription</text>
+  <text x="430" y="318" text-anchor="middle" fill="#70a0c0" font-size="8" font-family="monospace">StartAsyncInvoke (Async)</text>
+
+  <!-- ═══════════ Marengo Sync (Query) ═══════════ -->
+  <rect x="310" y="355" width="240" height="90" rx="10" fill="url(#boxMarSync)" filter="url(#shadow)"/>
+  <text x="430" y="381" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="Arial, sans-serif">Marengo Embed 3.0</text>
+  <text x="430" y="401" text-anchor="middle" fill="#c0d8ff" font-size="11" font-family="Arial, sans-serif">Text / Image Embedding</text>
+  <text x="430" y="421" text-anchor="middle" fill="#b0c8e0" font-size="10" font-family="Arial, sans-serif">dim=512 / Query embedding</text>
+  <text x="430" y="437" text-anchor="middle" fill="#a0b8d0" font-size="8" font-family="monospace">InvokeModel (Sync)</text>
+
+  <!-- ═══════════ Vector DB ═══════════ -->
+  <rect x="670" y="230" width="225" height="110" rx="10" fill="url(#boxVec)" filter="url(#shadow)"/>
+  <text x="783" y="262" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="Arial, sans-serif">Vector DB</text>
+  <text x="783" y="284" text-anchor="middle" fill="#e0d0f0" font-size="11" font-family="Arial, sans-serif">OpenSearch / Pinecone</text>
+  <text x="783" y="305" text-anchor="middle" fill="#d0c0e0" font-size="10" font-family="Arial, sans-serif">video_embed + text_embed</text>
+  <text x="783" y="325" text-anchor="middle" fill="#c0b0d0" font-size="10" font-family="Arial, sans-serif">Hybrid Similarity Search</text>
+
+  <!-- ═══════════ Output ═══════════ -->
+  <rect x="670" y="90" width="225" height="110" rx="10" fill="none" stroke="#e8772e" stroke-width="2"/>
+  <text x="783" y="118" text-anchor="middle" fill="#e8772e" font-size="13" font-weight="bold" font-family="Arial, sans-serif">Output</text>
+  <text x="783" y="142" text-anchor="middle" fill="#c0c0c0" font-size="10" font-family="Arial, sans-serif">EN/KO Video Summary</text>
+  <text x="783" y="160" text-anchor="middle" fill="#c0c0c0" font-size="10" font-family="Arial, sans-serif">Timestamped Moments</text>
+  <text x="783" y="178" text-anchor="middle" fill="#c0c0c0" font-size="10" font-family="Arial, sans-serif">Object Detection / Q&amp;A</text>
+
+  <!-- ═══════════ User Query ═══════════ -->
+  <rect x="50" y="370" width="160" height="70" rx="10" fill="none" stroke="#4A90D9" stroke-width="2"/>
+  <text x="130" y="400" text-anchor="middle" fill="#4A90D9" font-size="13" font-weight="bold" font-family="Arial, sans-serif">User Query</text>
+  <text x="130" y="420" text-anchor="middle" fill="#80a0c0" font-size="10" font-family="Arial, sans-serif">"hot air balloons..."</text>
+
+  <!-- ═══════════ ARROWS ═══════════ -->
+
+  <!-- S3 -> Pegasus (InvokeModel) -->
+  <path d="M 210 150 L 305 130" stroke="#6AAF35" stroke-width="2.5" fill="none" marker-end="url(#arrowG)"/>
+  <text x="240" y="130" fill="#a0d080" font-size="9" font-family="Arial, sans-serif">video (S3 URI)</text>
+
+  <!-- S3 -> Marengo Async (StartAsyncInvoke) -->
+  <path d="M 210 230 L 305 260" stroke="#6AAF35" stroke-width="2.5" fill="none" marker-end="url(#arrowG)"/>
+  <text x="225" y="262" fill="#a0d080" font-size="9" font-family="Arial, sans-serif">video (S3 URI)</text>
+
+  <!-- Pegasus -> Output -->
+  <path d="M 550 135 L 665 135" stroke="#E8772E" stroke-width="2.5" fill="none" marker-end="url(#arrowO)"/>
+  <text x="585" y="128" fill="#e8a060" font-size="9" font-family="Arial, sans-serif">text response</text>
+
+  <!-- Pegasus -> Marengo Sync (description text for embedding) -->
+  <path d="M 430 185 L 430 350" stroke="#E8772E" stroke-width="2" stroke-dasharray="5,3" fill="none" marker-end="url(#arrowO)"/>
+  <text x="438" y="290" fill="#e8a060" font-size="9" font-family="Arial, sans-serif">description</text>
+  <text x="438" y="302" fill="#e8a060" font-size="9" font-family="Arial, sans-serif">text</text>
+
+  <!-- Marengo Async -> Vector DB (multi-vector embedding) -->
+  <path d="M 550 280 L 665 280" stroke="#2E7BCF" stroke-width="2.5" fill="none" marker-end="url(#arrowBD)"/>
+  <text x="575" y="272" fill="#80b0e0" font-size="9" font-family="Arial, sans-serif">multi-vector</text>
+
+  <!-- Marengo Sync -> Vector DB (query embedding for search) -->
+  <path d="M 550 400 L 650 400 L 650 320 L 665 320" stroke="#4A90D9" stroke-width="2" fill="none" marker-end="url(#arrowB)"/>
+  <text x="618" y="392" fill="#80b0e0" font-size="9" font-family="Arial, sans-serif">query</text>
+  <text x="618" y="404" fill="#80b0e0" font-size="9" font-family="Arial, sans-serif">embed</text>
+
+  <!-- User Query -> Marengo Sync -->
+  <path d="M 210 405 L 305 400" stroke="#4A90D9" stroke-width="2" fill="none" marker-end="url(#arrowB)"/>
+  <text x="240" y="397" fill="#80b0e0" font-size="9" font-family="Arial, sans-serif">text query</text>
+
+  <!-- Marengo Async -> S3 (output.json) -->
+  <path d="M 310 310 L 200 290 L 200 270" stroke="#2E7BCF" stroke-width="1.5" stroke-dasharray="4,3" fill="none" marker-end="url(#arrowBD)"/>
+  <text x="225" y="300" fill="#6090b0" font-size="8" font-family="Arial, sans-serif">output.json</text>
+
+  <!-- ═══════════ Pipeline Legend ═══════════ -->
+  <rect x="50" y="470" width="445" height="125" rx="8" fill="#1e2e3e" stroke="#3a5a7a" stroke-width="1"/>
+
+  <text x="70" y="495" fill="#FF9900" font-size="12" font-weight="bold" font-family="Arial, sans-serif">Pipeline A: Video Understanding</text>
+  <text x="70" y="513" fill="#b0b0b0" font-size="10" font-family="Arial, sans-serif">S3 Video --> Pegasus (InvokeModel) --> Summary / Q&amp;A</text>
+
+  <text x="70" y="538" fill="#2E7BCF" font-size="12" font-weight="bold" font-family="Arial, sans-serif">Pipeline B: Video Indexing (Async)</text>
+  <text x="70" y="556" fill="#b0b0b0" font-size="10" font-family="Arial, sans-serif">S3 Video --> Marengo (StartAsyncInvoke) --> Vector DB</text>
+
+  <text x="70" y="581" fill="#4A90D9" font-size="12" font-weight="bold" font-family="Arial, sans-serif">Pipeline C: Enriched Indexing</text>
+  <text x="70" y="596" fill="#b0b0b0" font-size="10" font-family="Arial, sans-serif">Pegasus desc --> Marengo text embed (InvokeModel) --> Vector DB</text>
+
+  <!-- ═══════════ Bedrock Badge ═══════════ -->
+  <rect x="535" y="470" width="360" height="125" rx="8" fill="#1e2e3e" stroke="#3a5a7a" stroke-width="1"/>
+  <text x="715" y="498" text-anchor="middle" fill="#FF9900" font-size="14" font-weight="bold" font-family="Arial, sans-serif">Amazon Bedrock</text>
+
+  <text x="555" y="520" fill="#a0a0a0" font-size="10" font-family="Arial, sans-serif">Sync:   InvokeModel (Pegasus, Marengo text/image)</text>
+  <text x="555" y="540" fill="#a0a0a0" font-size="10" font-family="Arial, sans-serif">Async:  StartAsyncInvoke (Marengo video/audio)</text>
+  <line x1="555" y1="550" x2="875" y2="550" stroke="#3a5a7a" stroke-width="0.5"/>
+  <text x="555" y="568" fill="#808080" font-size="10" font-family="Arial, sans-serif">IAM Authentication / S3 Integration</text>
+  <text x="555" y="586" fill="#808080" font-size="10" font-family="Arial, sans-serif">Embedding dim=512 / Multi-Vector output</text>
+
 </svg>
 """
 
