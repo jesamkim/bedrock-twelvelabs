@@ -12,19 +12,29 @@ Pegasus v1.2 (비디오 언어 모델)와 Marengo Embed 3.0 (멀티모달 임베
 |-----------|------|
 | **Amazon S3** | 샘플 비디오 저장 (us-east-1) |
 | **Pegasus v1.2** | 비디오를 보고 자연어 텍스트 생성 (요약, Q&A, 타임스탬프) |
-| **Marengo Embed 3.0** | 텍스트/이미지를 512차원 벡터로 변환 |
+| **Marengo Embed 3.0** | 비디오/텍스트/이미지를 512차원 벡터로 변환 |
 | **Vector DB** | 임베딩 저장 및 유사도 검색 (OpenSearch, Pinecone 등) |
 
 ### Bedrock 모델 정보
 
-| 모델 | Inference Profile ID | 입력 | 출력 | 리전 |
-|------|---------------------|------|------|------|
+| 모델 | Model ID | 입력 | 출력 | 리전 |
+|------|----------|------|------|------|
 | Pegasus v1.2 | `us.twelvelabs.pegasus-1-2-v1:0` | TEXT + VIDEO | TEXT | us-east-1, us-east-2, us-west-2 |
-| Marengo Embed 3.0 | `us.twelvelabs.marengo-embed-3-0-v1:0` | TEXT + IMAGE | EMBEDDING (dim=512) | us-east-1 |
+| Marengo Embed 3.0 | `us.twelvelabs.marengo-embed-3-0-v1:0` (Sync) / `twelvelabs.marengo-embed-3-0-v1:0` (Async) | TEXT, IMAGE, VIDEO, AUDIO | EMBEDDING (dim=512) | us-east-1 |
 
-> **참고**: Marengo Embed는 Bedrock에서 **비디오 직접 임베딩을 지원하지 않습니다**.
-> `image`와 `text` 입력만 가능하며, 비디오 임베딩이 필요한 경우 프레임 추출 또는
-> Pegasus 설명 텍스트를 거치는 파이프라인이 필요합니다.
+### Marengo Embed API 방식
+
+Marengo Embed 3.0은 Bedrock에서 **비디오 직접 임베딩을 지원**합니다.
+단, 동기/비동기 API에 따라 지원하는 입력 모달리티가 다릅니다:
+
+| API 방식 | Bedrock API | 지원 입력 | 용도 |
+|----------|------------|----------|------|
+| **동기** (InvokeModel) | `us.twelvelabs.marengo-embed-3-0-v1:0` | Text, Image, Text+Image | 검색 쿼리 임베딩 (즉시 응답) |
+| **비동기** (StartAsyncInvoke) | `twelvelabs.marengo-embed-3-0-v1:0` | Video, Audio, Image, Text | 대규모 에셋 인덱싱 |
+
+비동기 비디오 임베딩은 **Multi-Vector** 결과를 반환합니다:
+- **Asset-level**: 전체 비디오에 대한 visual / audio / transcription 임베딩 (3개)
+- **Clip-level**: ~6.5초 단위 시간 구간별 동일 3종 임베딩 (N*3개)
 
 ## 샘플 비디오
 
@@ -92,64 +102,113 @@ response = bedrock.invoke_model(
 - **객체 인식**: 사람, 차량, 열기구, 노트북 등 주요 객체 정확히 식별
 - cooking.mp4의 실제 내용(실험실 피펫)을 정확히 파악 (파일명에 속지 않음)
 
-## 실험 2: Marengo Embed 3.0 - 멀티모달 임베딩
+## 실험 2: Marengo Embed 3.0 - 비디오 임베딩
 
 > `02_marengo_embed.py`
 
 ### Bedrock API 호출 형식
 
 ```python
-# Text embedding
+# [동기] 텍스트 임베딩 (검색 쿼리용) - InvokeModel
 body = {"inputType": "text", "text": {"inputText": "search query"}}
-# Image embedding
-body = {"inputType": "image", "image": {"mediaSource": {"base64String": "..."}}}
+response = bedrock.invoke_model(
+    modelId="us.twelvelabs.marengo-embed-3-0-v1:0", ...
+)
 # Response: {"data": [{"embedding": [float x 512]}]}
+
+# [비동기] 비디오 임베딩 (에셋 인덱싱용) - StartAsyncInvoke
+body = {
+    "inputType": "video",
+    "video": {
+        "mediaSource": {
+            "s3Location": {
+                "uri": "s3://bucket/videos/nature.mp4",
+                "bucketOwner": "123456789012",
+            }
+        }
+    },
+}
+response = bedrock.start_async_invoke(
+    modelId="twelvelabs.marengo-embed-3-0-v1:0",
+    modelInput=body,
+    outputDataConfig={"s3OutputDataConfig": {"s3Uri": "s3://bucket/output/"}},
+)
+# 결과는 S3 output.json에 저장
+# {"data": [{"embedding": [...], "embeddingScope": "asset|clip",
+#            "embeddingOption": "visual|audio|transcription",
+#            "startSec": 0.0, "endSec": 19.35}]}
 ```
 
-### Step 1: Text-to-Image 검색 (프레임 평균 임베딩)
+### 비동기 비디오 임베딩 결과 구조
 
-비디오에서 4개 프레임을 추출하고, 각 프레임의 이미지 임베딩 평균으로 비디오를 표현합니다.
+nature.mp4 (19.3초)에서 생성된 Multi-Vector 임베딩:
 
-![Frame Search](assets/chart_frame_search.png)
+| Scope | Option | 구간 | dim |
+|-------|--------|------|-----|
+| asset | visual | 0.00-19.35s (전체) | 512 |
+| asset | audio | 0.00-19.35s (전체) | 512 |
+| asset | transcription | 0.00-19.35s (전체) | 512 |
+| clip | visual | 0.00-6.50s | 512 |
+| clip | visual | 6.50-13.00s | 512 |
+| clip | visual | 13.00-19.25s | 512 |
+| clip | audio | 0.00-6.50s | 512 |
+| ... | ... | ... | ... |
+| **총 12개 벡터** | | | |
+
+### Step 1: Text-to-Video 검색 (비동기 비디오 임베딩)
+
+비디오를 `StartAsyncInvoke`로 직접 임베딩하고, asset-level visual 벡터로 텍스트 쿼리와 비교합니다.
+
+![Async Video Search](assets/chart_async_video_search.png)
 
 | 검색 쿼리 | 1위 (Score) | 2위 | 3위 |
 |-----------|------------|-----|-----|
-| "woman watching hot air balloons at sunset" | **nature** (0.063) | city (-0.009) | cooking (-0.065) |
-| "two people talking by the river with laptops" | **city** (0.128) | nature (-0.012) | cooking (-0.035) |
-| "laboratory pipette experiment with green liquid" | **cooking** (0.067) | nature (-0.052) | city (-0.054) |
+| "woman watching hot air balloons at sunset" | **nature** (0.140) | city (0.005) | cooking (-0.070) |
+| "two people talking by the river with laptops" | **city** (0.131) | nature (-0.022) | cooking (-0.075) |
+| "laboratory pipette experiment with green liquid" | **cooking** (0.150) | city (-0.066) | nature (-0.083) |
 
-**상대 순위는 정확하지만**, 절대 유사도 스코어가 매우 낮습니다 (0.06~0.13).
-프레임 이미지만으로는 비디오의 맥락을 충분히 표현하지 못합니다.
+3개 쿼리 모두 **정확한 비디오를 1위로 매칭** (3/3). 스코어 마진도 Frame-avg 방식 대비 약 2배 개선.
 
 ### Step 2: Video-to-Video 유사도 매트릭스
 
 ![Similarity Matrix](assets/chart_similarity_matrix.png)
 
-프레임 평균 임베딩 간 cosine similarity. 모든 비디오 쌍이 0.74~0.79로 높은 유사도를 보여
-**변별력이 부족**합니다.
+비동기 비디오 임베딩(visual) 간 cosine similarity. 이전 frame-avg 방식(0.74~0.79)과 비교하면
+비디오 간 유사도가 0.60~0.63으로 **변별력이 크게 향상**되었습니다.
 
-### Step 3: Pegasus + Marengo 파이프라인 vs Frame-avg 비교
+### Step 3: Clip-level 시간 구간 검색
 
-비디오를 Pegasus로 설명 텍스트를 생성한 후, 그 텍스트를 Marengo로 임베딩하는 파이프라인의 성능을 비교합니다.
+비동기 임베딩의 clip-level 벡터를 활용하면 **비디오 내 특정 시간 구간**까지 검색할 수 있습니다.
 
-![Pipeline Comparison](assets/chart_pipeline_comparison.png)
+![Clip Temporal Search](assets/chart_clip_temporal.png)
 
-| 검색 쿼리 | 방식 | nature | city | cooking |
-|-----------|------|--------|------|---------|
-| "hot air balloons in cappadocia" | Frame-avg | 0.043 | -0.051 | -0.058 |
-| | **Pegasus+Marengo** | **0.421** | 0.176 | 0.117 |
-| "people having conversation outdoors" | Frame-avg | 0.006 | 0.069 | -0.028 |
-| | **Pegasus+Marengo** | 0.290 | **0.616** | 0.158 |
-| "science experiment in lab" | Frame-avg | -0.032 | -0.043 | 0.068 |
-| | **Pegasus+Marengo** | 0.222 | 0.254 | **0.562** |
+- "hot air balloons floating in the sky" → nature의 모든 클립이 top 3 (일관된 장면)
+- "people gesturing with hands" → city의 13.0~19.2s 구간이 최고 스코어 (실제 제스처가 활발한 구간)
+
+### Step 4: 비동기 비디오 임베딩 vs Pegasus+Marengo 파이프라인
+
+![3-Way Comparison](assets/chart_3way_comparison.png)
+
+![API Comparison](assets/chart_api_comparison.png)
+
+**정답 비디오에 대한 cosine similarity (높을수록 좋음):**
+
+| 검색 쿼리 | 비동기 비디오 임베딩 | Pegasus+Marengo |
+|-----------|-------------------|----------------|
+| "hot air balloons in cappadocia" → nature | 0.135 | **0.456** |
+| "people having conversation outdoors" → city | 0.067 | **0.636** |
+| "science experiment in lab" → cooking | 0.099 | **0.534** |
 
 ### 핵심 결론
 
-**Pegasus + Marengo 파이프라인이 Frame-avg 대비 약 5~10배 높은 유사도 스코어**를 보여줍니다.
+| 방식 | 정답 매칭 | 평균 스코어 | 장점 | 단점 |
+|------|----------|-----------|------|------|
+| **비동기 비디오 임베딩** | 3/3 (100%) | 0.100 | 직접 임베딩, clip-level 시간 검색 가능 | 스코어 절대값 낮음 |
+| **Pegasus+Marengo** | 3/3 (100%) | **0.542** | 높은 유사도 스코어, 설명 텍스트 재활용 | 2단계 호출 필요 |
 
-- Frame-avg 최고 스코어: 0.069
-- Pegasus+Marengo 최고 스코어: **0.616**
-- 정확한 비디오를 1위로 매칭하는 비율: 두 방식 모두 3/3 (100%)이지만, 마진이 극적으로 다름
+- **비동기 비디오 임베딩**: 시간 구간 검색, 모달리티별 분석 등 **세밀한 검색**에 적합
+- **Pegasus+Marengo 파이프라인**: 높은 유사도 스코어로 **대규모 비디오 라이브러리 검색**에 적합
+- 실제 프로덕션에서는 **두 방식을 조합**하는 것이 최적 (비동기 임베딩 + 설명 텍스트 보조)
 
 ## 권장 아키텍처: 비디오 RAG 파이프라인
 
@@ -158,15 +217,17 @@ body = {"inputType": "image", "image": {"mediaSource": {"base64String": "..."}}}
 ```
 [인덱싱 시점]
 Video (S3)
+  --> StartAsyncInvoke (Marengo Embed): 비디오 직접 임베딩 (multi-vector)
   --> Pegasus v1.2: 비디오 설명 텍스트 생성
-  --> Marengo Embed 3.0: 텍스트를 512차원 벡터로 변환
-  --> Vector DB에 저장 (메타데이터: video_key, description, timestamps)
+  --> InvokeModel (Marengo Embed): 설명 텍스트 임베딩
+  --> Vector DB에 저장 (video_embed + text_embed + metadata)
 
 [검색 시점]
 User Query (자연어)
-  --> Marengo Embed 3.0: 쿼리를 512차원 벡터로 변환
-  --> Vector DB에서 cosine similarity 검색
-  --> Top-K 비디오 반환 + Pegasus로 상세 Q&A
+  --> InvokeModel (Marengo Embed): 쿼리 텍스트 임베딩 (동기, 즉시 응답)
+  --> Vector DB에서 hybrid search (video_embed + text_embed)
+  --> Top-K 비디오 반환
+  --> Pegasus로 상세 Q&A (선택적)
 ```
 
 ## 프로젝트 구조
@@ -175,7 +236,7 @@ User Query (자연어)
 bedrock-twelvelabs/
   README.md
   01_pegasus_video_qa.py      # 실험 1: Pegasus 비디오 이해
-  02_marengo_embed.py          # 실험 2: Marengo 임베딩 + 파이프라인
+  02_marengo_embed.py          # 실험 2: Marengo 임베딩 (비동기 비디오 + 파이프라인)
   generate_charts.py           # 결과 차트 생성
   generate_arch_diagram.py     # 아키텍처 다이어그램 생성
   videos/                      # 샘플 비디오 (Pexels CC0)
@@ -195,7 +256,7 @@ export AWS_DEFAULT_REGION=us-east-1
 # 실험 1: Pegasus 비디오 Q&A
 python 01_pegasus_video_qa.py
 
-# 실험 2: Marengo 임베딩 + 파이프라인
+# 실험 2: Marengo 임베딩 (비동기 비디오 + 파이프라인 비교)
 python 02_marengo_embed.py
 
 # 차트/다이어그램 재생성
