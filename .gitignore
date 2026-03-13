@@ -1,4 +1,4 @@
-videos/
+videos/*_small.mp4
 frames/
 __pycache__/
 *.pyc
