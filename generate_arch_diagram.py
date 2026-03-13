@@ -127,10 +127,10 @@ SVG = """<?xml version="1.0" encoding="UTF-8"?>
   <path d="M 550 135 L 665 135" stroke="#E8772E" stroke-width="2.5" fill="none" marker-end="url(#arrowO)"/>
   <text x="585" y="128" fill="#e8a060" font-size="9" font-family="Arial, sans-serif">text response</text>
 
-  <!-- Pegasus -> Marengo Sync (description text for embedding) -->
-  <path d="M 430 185 L 430 350" stroke="#E8772E" stroke-width="2" stroke-dasharray="5,3" fill="none" marker-end="url(#arrowO)"/>
-  <text x="438" y="290" fill="#e8a060" font-size="9" font-family="Arial, sans-serif">description</text>
-  <text x="438" y="302" fill="#e8a060" font-size="9" font-family="Arial, sans-serif">text</text>
+  <!-- Pegasus -> Marengo Sync (description text for embedding, route around Async box) -->
+  <path d="M 310 175 L 275 175 L 275 400 L 305 400" stroke="#E8772E" stroke-width="2" stroke-dasharray="5,3" fill="none" marker-end="url(#arrowO)"/>
+  <text x="250" y="295" fill="#e8a060" font-size="9" font-family="Arial, sans-serif" text-anchor="end">description</text>
+  <text x="250" y="307" fill="#e8a060" font-size="9" font-family="Arial, sans-serif" text-anchor="end">text</text>
 
   <!-- Marengo Async -> Vector DB (multi-vector embedding) -->
   <path d="M 550 280 L 665 280" stroke="#2E7BCF" stroke-width="2.5" fill="none" marker-end="url(#arrowBD)"/>
