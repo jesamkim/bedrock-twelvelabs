@@ -178,8 +178,8 @@ bedrock-twelvelabs/
   02_marengo_embed.py          # 실험 2: Marengo 임베딩 + 파이프라인
   generate_charts.py           # 결과 차트 생성
   generate_arch_diagram.py     # 아키텍처 다이어그램 생성
-  videos/                      # 샘플 비디오 (git에서 제외)
-  frames/                      # 추출된 프레임 (git에서 제외)
+  videos/                      # 샘플 비디오 (Pexels CC0)
+  frames/                      # 추출된 프레임 (git에서 제외, 실행 시 자동 생성)
   assets/                      # README 이미지 (charts, diagrams, samples)
 ```
 
